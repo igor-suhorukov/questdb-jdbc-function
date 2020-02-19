@@ -1,9 +1,6 @@
 package io.questdb.griffin.engine.functions.jdbc;
 
-import io.questdb.cairo.CairoConfiguration;
-import io.questdb.cairo.ColumnType;
-import io.questdb.cairo.GenericRecordMetadata;
-import io.questdb.cairo.TableColumnMetadata;
+import io.questdb.cairo.*;
 import io.questdb.cairo.sql.Function;
 import io.questdb.cairo.sql.NoRandomAccessRecordCursor;
 import io.questdb.cairo.sql.Record;
@@ -46,7 +43,7 @@ public class JdbcFunctionFactory implements FunctionFactory {
         //jdbcToQuestColumnType.put(ColumnType.SYMBOL);
     }
 
-    private static final NullRecord NULL = NullRecord.INSTANCE;
+    private static final NullColumn NULL = NullColumn.INSTANCE;
 
     @Override
     public String getSignature() {
@@ -110,6 +107,11 @@ public class JdbcFunctionFactory implements FunctionFactory {
         public void toTop() {
             record.init();
         }
+
+        @Override
+        public long size() {
+            return -1;
+        }
     }
 
     static class JdbcRecord implements Record, Closeable {
@@ -148,7 +150,7 @@ public class JdbcFunctionFactory implements FunctionFactory {
         @SneakyThrows
         public long getDate(int col) {
             Date date = statementHolder.getResultSet().getDate(col + 1);
-            return date != null ? date.getTime() : NULL.getDate(col);
+            return date != null ? date.getTime() : NULL.getLong(col);
         }
 
         @Override

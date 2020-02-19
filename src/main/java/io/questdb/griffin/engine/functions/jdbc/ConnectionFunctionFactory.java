@@ -1,23 +1,27 @@
 package io.questdb.griffin.engine.functions.jdbc;
 
 import io.questdb.cairo.CairoConfiguration;
+import io.questdb.cairo.CairoEngine;
 import io.questdb.cairo.ColumnType;
 import io.questdb.cairo.sql.Function;
 import io.questdb.cairo.sql.Record;
 import io.questdb.cairo.sql.RecordCursor;
 import io.questdb.cairo.sql.RecordMetadata;
 import io.questdb.griffin.FunctionFactory;
+import io.questdb.griffin.SqlCompiler;
 import io.questdb.griffin.SqlException;
-import io.questdb.griffin.engine.functions.constants.NullConstant;
+import io.questdb.griffin.engine.functions.constants.NullStrConstant;
+import io.questdb.plugin.GlobalComponent;
 import io.questdb.std.ObjList;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import javax.sql.DataSource;
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ConnectionFunctionFactory implements FunctionFactory {
+public class ConnectionFunctionFactory implements FunctionFactory, GlobalComponent {
     private static final String COLUMN_NAME = "name";
     private static final String COLUMN_DRIVER = "driver";
     private static final String COLUMN_URL = "url";
@@ -41,6 +45,8 @@ public class ConnectionFunctionFactory implements FunctionFactory {
     static {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> DBCP.values().forEach(HikariDataSource::close)));
     }
+
+    private SqlCompiler sqlCompiler;
 
     @Override
     public String getSignature() {
@@ -127,7 +133,7 @@ public class ConnectionFunctionFactory implements FunctionFactory {
             DBCP.computeIfAbsent(poolName, s -> new HikariDataSource(configuration));
         }
 
-        return new NullConstant(position);
+        return new NullStrConstant(position);
     }
 
     private int getColumnIndex(RecordMetadata metadata, String columnName, int expectedColumnType, boolean requered) throws SqlException {
@@ -147,5 +153,15 @@ public class ConnectionFunctionFactory implements FunctionFactory {
             throw SqlException.$(1,"DataSource ").put(dataSourceName).put(" not found");
         }
         return dataSource;
+    }
+
+    @Override
+    public void init(CairoEngine cairoEngine) {
+        sqlCompiler = new SqlCompiler(cairoEngine);
+    }
+
+    @Override
+    public void close() throws IOException {
+        sqlCompiler.close();
     }
 }
