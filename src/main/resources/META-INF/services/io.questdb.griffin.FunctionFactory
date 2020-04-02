@@ -1,0 +1,2 @@
+io.questdb.griffin.engine.functions.jdbc.JdbcFunctionFactory
+io.questdb.griffin.engine.functions.jdbc.ConnectionFunctionFactory

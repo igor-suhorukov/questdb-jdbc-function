@@ -1,0 +1,7 @@
+--jdbc:h2:mem:test;INIT=RUNSCRIPT FROM 'classpath:/ConnectionFunction.sql'
+CREATE TABLE TEST(
+    ID INT,
+    NAME VARCHAR,
+    LAST_MOD TIMESTAMP WITH TIME ZONE AS CURRENT_TIMESTAMP
+);
+insert into TEST(ID,NAME) VALUES(1,'I am');

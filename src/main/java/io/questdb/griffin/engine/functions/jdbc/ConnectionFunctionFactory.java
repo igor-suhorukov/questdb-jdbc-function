@@ -81,21 +81,21 @@ public class ConnectionFunctionFactory implements FunctionFactory, GlobalCompone
         while (recordCursor.hasNext()){
             Record record = recordCursor.getRecord();
             HikariConfig configuration = new HikariConfig();
-            String poolName = String.valueOf(record.getStr(nameIdx));
+            String poolName = valueOf(record.getStr(nameIdx));
             configuration.setPoolName(poolName);
 
-            configuration.setJdbcUrl(String.valueOf(record.getStr(urlIdx)));
-            configuration.setUsername(String.valueOf(record.getStr(userIdx)));
-            configuration.setPassword(String.valueOf(record.getStr(passwordIdx)));
+            configuration.setJdbcUrl(valueOf(record.getStr(urlIdx)));
+            configuration.setUsername(valueOf(record.getStr(userIdx)));
+            configuration.setPassword(valueOf(record.getStr(passwordIdx)));
 
             if(driverIdx!=-1){
-                configuration.setDriverClassName(String.valueOf(record.getStr(driverIdx)));
+                configuration.setDriverClassName(valueOf(record.getStr(driverIdx)));
             }
             if(schemaIdx!=-1){
-                configuration.setSchema(String.valueOf(record.getStr(schemaIdx)));
+                configuration.setSchema(valueOf(record.getStr(schemaIdx)));
             }
             if(catalogIdx!=-1){
-                configuration.setCatalog(String.valueOf(record.getStr(catalogIdx)));
+                configuration.setCatalog(valueOf(record.getStr(catalogIdx)));
             }
             if(autoCommitIdx!=-1){
                 configuration.setAutoCommit(record.getBool(autoCommitIdx));
@@ -110,7 +110,7 @@ public class ConnectionFunctionFactory implements FunctionFactory, GlobalCompone
                 configuration.setMaximumPoolSize(record.getInt(maxPoolSizeIdx));
             }
             if(transactionIsolationIdx!=-1){
-                configuration.setTransactionIsolation(String.valueOf(record.getStr(transactionIsolationIdx)));
+                configuration.setTransactionIsolation(valueOf(record.getStr(transactionIsolationIdx)));
             }
             if(idleTimeoutIdx!=-1){
                 configuration.setIdleTimeout(record.getLong(idleTimeoutIdx));
@@ -154,6 +154,11 @@ public class ConnectionFunctionFactory implements FunctionFactory, GlobalCompone
         }
         return dataSource;
     }
+
+    private static String valueOf(Object value) {
+        return (value != null) ? value.toString() : null;
+    }
+    
 
     @Override
     public void init(CairoEngine cairoEngine) {
